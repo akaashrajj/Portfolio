@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CALCULATOR</title>
+    <link rel="stylesheet" href="./style/main.css"
+    <!-- <link rel="stylesheet" type="text/css" href="./style/main.css"> -->
+</head>
+
+<body>
+
+
+    <!-- NUMBER -->
+    <div class="career">
+        <table>
+            <tr>
+                <td colspan="4">
+                    <input type="text" id="display" disabled>
+                </td>
+            </tr>
+            <tr>
+                <th><button onclick="numbers()"></button></th>
+                <th><button onclick="clearalldata('CE')">CE</button></th>
+                <th><button onclick="clearonebyone('C')">C</button></th>
+                <th><button onclick="backspace('BS')">BS</button></th>
+            </tr>
+            <tr>
+                <th><button onclick="numbers('9')">9</button></th>
+                <th><button onclick="numbers('8')">8</button></th>
+                <th><button onclick="numbers('7')">7</button></th>
+                <th><button onclick="operators('*')">*</button></th>
+            </tr>
+            <tr>
+                <th><button onclick="numbers('6')">6</button></th>
+                <th><button onclick="numbers('5')">5</button></th>
+                <th><button onclick="numbers('4')">4</button></th>
+                <th><button onclick="operators('-')">-</button></th>
+            </tr>
+            <tr>
+                <th><button onclick="numbers('3')">3</button></th>
+                <th><button onclick="numbers('2')">2</button></th>
+                <th><button onclick="numbers('1')">1</button></th>
+                <th><button onclick="operators('+')">+</button></th>
+            </tr>
+            <tr>
+                <th><button onclick="numbers()"></button></th>
+                <th><button onclick="zero()">0</button></th>
+                <th><button onclick="dot('.')">.</button></th>
+                <th><button onclick="result('=')">=</button></th>
+            </tr>
+        </table>
+    </div>
+
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>

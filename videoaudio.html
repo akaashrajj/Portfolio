@@ -1,0 +1,110 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video and Audio Recorder</title>
+</head>
+<style>
+    #head1{
+        text-align: center;
+    }
+</style>
+<body>
+    <h1 id="head1">Video and Audio Recorder</h1>
+
+    <form id="recording-form" action="/record" method="POST" enctype="multipart/form-data">
+        <video id="video" autoplay></video>
+        <audio id="audio" autoplay></audio>
+        <button id="startRecord" type="button">Start Recording</button>
+        <button id="stopRecord" type="button">Stop Recording</button>
+        <button id="download" type="button" style="display: inline;">Download Recording</button>
+    </form>
+
+    <script>
+        const videoElement = document.getElementById("video");
+        const audioElement = document.getElementById("audio");
+        const startRecordButton = document.getElementById("startRecord");
+        const stopRecordButton = document.getElementById("stopRecord");
+        const downloadButton = document.getElementById("download");
+        let mediaRecorder;
+        let videoChunks = [];
+        let audioChunks = [];
+
+        startRecordButton.addEventListener("click", () => {
+            navigator.mediaDevices
+                .getUserMedia({ video: true, audio: true })
+                .then((stream) => {
+                    videoElement.srcObject = stream;
+                    audioElement.srcObject = stream;
+
+                    mediaRecorder = new MediaRecorder(stream);
+
+                    mediaRecorder.ondataavailable = (event) => {
+                        if (event.data.size > 0) {
+                            if (event.data.type === "video/webm") {
+                                videoChunks.push(event.data);
+                            } else if (event.data.type === "audio/wav") {
+                                audioChunks.push(event.data);
+                            }
+                        }
+                    };
+
+                    mediaRecorder.onstop = () => {
+                        const videoBlob = new Blob(videoChunks, { type: "video/webm" });
+                        const audioBlob = new Blob(audioChunks, { type: "audio/wav" });
+
+                        const videoURL = URL.createObjectURL(videoBlob);
+                        const audioURL = URL.createObjectURL(audioBlob);
+
+                        const videoBlobFile = new File([videoBlob], "recorded-video.webm");
+                        const audioBlobFile = new File([audioBlob], "recorded-audio.wav");
+
+                        const formData = new FormData();
+                        formData.append("video", videoBlobFile);
+                        formData.append("audio", audioBlobFile);
+
+                        fetch("/record", {
+                            method: "POST",
+                            body: formData,
+                        })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                console.log(data.message);
+                                downloadButton.style.display = "block";
+                                downloadButton.addEventListener("click", () => {
+                                    const a = document.createElement("a");
+                                    a.href = videoURL;
+                                    a.download = "recorded-video.webm";
+                                    document.body.appendChild(a);
+                                    a.click();
+                                    document.body.removeChild(a);
+                                });
+                            })
+                            .catch((error) => {
+                                console.error("Error sending recording data:", error);
+                            });
+                    };
+
+                    mediaRecorder.start();
+                })
+                .catch((error) => {
+                    console.error("Error accessing media devices:", error);
+                });
+        });
+
+        stopRecordButton.addEventListener("click", () => {
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                mediaRecorder.stop();
+                videoElement.srcObject.getTracks().forEach((track) => {
+                    track.stop();
+                });
+                audioElement.srcObject.getTracks().forEach((track) => {
+                    track.stop();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
